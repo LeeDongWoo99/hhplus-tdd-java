@@ -13,7 +13,9 @@ public interface PointService {
 
     public List<PointHistory> getPointHistories(long userId);
 
-    }
+    public UserPoint usePoint(long userId, long usePoint);
+
+}
 
 
 

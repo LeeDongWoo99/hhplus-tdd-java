@@ -4,6 +4,7 @@ import io.hhplus.tdd.database.PointHistoryTable;
 import io.hhplus.tdd.database.UserPointTable;
 import io.hhplus.tdd.point.domain.PointHistory;
 import io.hhplus.tdd.point.domain.PointPolicy;
+import io.hhplus.tdd.point.domain.TransactionType;
 import io.hhplus.tdd.point.domain.UserPoint;
 import org.springframework.stereotype.Service;
 
@@ -69,4 +70,24 @@ public class PointServiceImpl implements PointService{
         
         return pointHistories;
     }
+
+    @Override
+    public UserPoint usePoint(long userId, long usePoint) {
+        UserPoint userPoint = userPointTable.selectById(userId);
+
+        if (userPoint == null) {
+            throw new IllegalArgumentException("해당 유저를 찾을 수 없습니다.");
+        }
+
+        if (userPoint.point() < usePoint) {
+            throw new IllegalArgumentException("잔여 포인트가 부족합니다.");
+        }
+
+        long calculatedPoint = userPoint.point() - usePoint;
+        UserPoint updateUserPoint = userPointTable.insertOrUpdate(userId, calculatedPoint);
+        pointHistoryTable.insert(userId, usePoint, TransactionType.USE, System.currentTimeMillis());
+
+        return updateUserPoint;
+    }
+
 }
