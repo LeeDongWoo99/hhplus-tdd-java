@@ -11,8 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PointChargeServiceTest {
 
@@ -62,4 +61,31 @@ public class PointChargeServiceTest {
         // then:
         assertEquals("해당 유저를 찾을 수 없습니다.", exception.getMessage());
     }
+
+    @DisplayName("포인트 누적 한도 금액을 추가했을 경우")
+    @Test
+    void chargePoint_exceedsMaxTotalPoint() {
+        // given
+        PointPolicy mockPointPolicy = mock(PointPolicy.class);
+        UserPointTable mockUserPointTable = mock(UserPointTable.class);
+        PointHistoryTable mockPointHistoryTable = mock(PointHistoryTable.class);
+        PointService pointService = new PointServiceImpl(mockPointPolicy, mockUserPointTable, mockPointHistoryTable);
+
+        long userId = 1L;
+        long chargeAmount = 200000;
+        UserPoint currentUserPoint = new UserPoint(userId, 900000, System.currentTimeMillis());
+
+        when(mockUserPointTable.selectById(userId)).thenReturn(currentUserPoint);
+
+        doThrow(new IllegalArgumentException("최대 누적 포인트 금액을 초과할 수 없습니다. 최대 한도는 1,000,000원입니다."))
+                .when(mockPointPolicy).validateChargeAndAccumulatedPoint(currentUserPoint.point(), chargeAmount);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            pointService.chargePoint(userId, chargeAmount);
+        });
+
+        // then
+        assertEquals("최대 누적 포인트 금액을 초과할 수 없습니다. 최대 한도는 1,000,000원입니다.", exception.getMessage());
+    }
+
 }
