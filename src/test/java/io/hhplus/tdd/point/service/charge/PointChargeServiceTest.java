@@ -1,16 +1,20 @@
-package io.hhplus.tdd.point.service;
+package io.hhplus.tdd.point.service.charge;
 
 import io.hhplus.tdd.database.PointHistoryTable;
 import io.hhplus.tdd.database.UserPointTable;
 import io.hhplus.tdd.point.domain.PointPolicy;
 import io.hhplus.tdd.point.domain.UserPoint;
+import io.hhplus.tdd.point.service.PointService;
+import io.hhplus.tdd.point.service.PointServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-class PointServiceImplTest {
+public class PointChargeServiceTest {
 
     @DisplayName("0원에서 5000원을 충전했을 때, 포인트가 5000원이 되는지 확인")
     @Test
@@ -57,54 +61,5 @@ class PointServiceImplTest {
 
         // then:
         assertEquals("해당 유저를 찾을 수 없습니다.", exception.getMessage());
-    }
-
-    @DisplayName("조회하려는 유저가 있을 경우")
-    @Test
-    void testGetUserPoint_success() {
-        // given
-        PointPolicy mockPointPolicy = mock(PointPolicy.class);
-        UserPointTable mockUserPointTable = mock(UserPointTable.class);
-        PointHistoryTable mockPointHistoryTable = mock(PointHistoryTable.class);
-        PointService pointService = new PointServiceImpl(mockPointPolicy, mockUserPointTable, mockPointHistoryTable);
-
-        long userId = 1L;
-        UserPoint mockUserPoint = new UserPoint(userId, 1000, System.currentTimeMillis());
-        when(mockUserPointTable.selectById(userId)).thenReturn(mockUserPoint);
-
-        // when
-        UserPoint result = pointService.getUserPoint(userId);
-
-        // then
-        assertNotNull(result);
-        assertEquals(1000, result.point());
-    }
-
-    @Test
-    void testGetUserPoint_userNotFound() {
-        // given:
-        PointPolicy mockPointPolicy = mock(PointPolicy.class);
-        UserPointTable mockUserPointTable = mock(UserPointTable.class);
-        PointHistoryTable mockPointHistoryTable = mock(PointHistoryTable.class);
-        PointService pointService = new PointServiceImpl(mockPointPolicy, mockUserPointTable, mockPointHistoryTable);
-
-        long userId = 1L;
-        when(mockUserPointTable.selectById(userId)).thenReturn(null);
-
-        // when
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pointService.getUserPoint(userId);
-        });
-
-        // then
-        assertEquals("해당 유저를 찾을 수 없습니다.", exception.getMessage());
-    }
-
-    @Test
-    void chargePoint1() {
-    }
-
-    @Test
-    void usePoint() {
     }
 }
