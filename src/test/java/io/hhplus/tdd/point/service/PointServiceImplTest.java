@@ -59,8 +59,45 @@ class PointServiceImplTest {
         assertEquals("해당 유저를 찾을 수 없습니다.", exception.getMessage());
     }
 
+    @DisplayName("조회하려는 유저가 있을 경우")
     @Test
-    void getPointHistories() {
+    void testGetUserPoint_success() {
+        // given
+        PointPolicy mockPointPolicy = mock(PointPolicy.class);
+        UserPointTable mockUserPointTable = mock(UserPointTable.class);
+        PointHistoryTable mockPointHistoryTable = mock(PointHistoryTable.class);
+        PointService pointService = new PointServiceImpl(mockPointPolicy, mockUserPointTable, mockPointHistoryTable);
+
+        long userId = 1L;
+        UserPoint mockUserPoint = new UserPoint(userId, 1000, System.currentTimeMillis());
+        when(mockUserPointTable.selectById(userId)).thenReturn(mockUserPoint);
+
+        // when
+        UserPoint result = pointService.getUserPoint(userId);
+
+        // then
+        assertNotNull(result);
+        assertEquals(1000, result.point());
+    }
+
+    @Test
+    void testGetUserPoint_userNotFound() {
+        // given:
+        PointPolicy mockPointPolicy = mock(PointPolicy.class);
+        UserPointTable mockUserPointTable = mock(UserPointTable.class);
+        PointHistoryTable mockPointHistoryTable = mock(PointHistoryTable.class);
+        PointService pointService = new PointServiceImpl(mockPointPolicy, mockUserPointTable, mockPointHistoryTable);
+
+        long userId = 1L;
+        when(mockUserPointTable.selectById(userId)).thenReturn(null);
+
+        // when
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            pointService.getUserPoint(userId);
+        });
+
+        // then
+        assertEquals("해당 유저를 찾을 수 없습니다.", exception.getMessage());
     }
 
     @Test

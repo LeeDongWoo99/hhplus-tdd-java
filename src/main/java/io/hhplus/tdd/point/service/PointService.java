@@ -6,5 +6,9 @@ public interface PointService {
 
     public UserPoint chargePoint(long userId, long chargePoint);
 
+    public UserPoint getUserPoint(long userId);
+
     }
+
+
 

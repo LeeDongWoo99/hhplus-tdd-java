@@ -38,4 +38,15 @@ public class PointServiceImpl implements PointService{
         return UserPoint;
 
     }
+
+    @Override
+    public UserPoint getUserPoint(long userId) {
+        // 충전할 유저가 있는지 확인
+        UserPoint currentUserPoint = userPointTable.selectById(userId);
+        if (currentUserPoint == null) {
+            throw new IllegalArgumentException("해당 유저를 찾을 수 없습니다.");
+        }
+
+        return currentUserPoint;
+    }
 }
